@@ -874,7 +874,7 @@ require("lazy").setup({
           "│   <leader>a      - 代码结构                                        │",
           "│   <leader>ca     - 代码操作                                      │",
           "│   <leader>cf     - 格式化代码                                    │",
-          "│   <leader>rn     - 重命名变量/函数                               │",
+          "│   <leader>cr     - 重命名变量/函数                               │",
           "│   gr             - 查找所有引用                                  │",
           "│   gi             - 查找实现                                      │",
           "│   [d / ]d        - 跳到上一个/下一个诊断                         │",
@@ -995,6 +995,7 @@ require("lazy").setup({
           name = "代码",
           a = { desc = "代码操作" },
           f = { desc = "格式化" },
+          r = { desc = "重命名变量/函数" },
         },
         ["<leader>/"] = { desc = "注释" },
         ["<leader>d"] = { 
@@ -1027,11 +1028,10 @@ require("lazy").setup({
         },
         ["<leader>h"] = { function() show_keybindings_help() end, "显示键位帮助" },
         ["<leader>r"] = {
-          name = "运行和重命名",
+          name = "运行",
           t = { desc = "在新标签页运行" },
           f = { desc = "在浮动窗口运行" },
           c = { desc = "关闭运行窗口" },
-          n = { desc = "重命名变量/函数" },
         },
         ["<leader>t"] = {
           name = "终端",
@@ -1431,7 +1431,7 @@ local function set_lsp_keymaps(bufnr)
   end, {buffer = bufnr, desc = "LSP格式化"})
   
   -- 重命名变量
-  vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {buffer = bufnr, desc = "重命名变量"})
+  vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, {buffer = bufnr, desc = "重命名变量"})
   
   -- 引用查找
   vim.keymap.set("n", "gr", vim.lsp.buf.references, {buffer = bufnr, desc = "查找引用"})
