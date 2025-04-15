@@ -55,28 +55,98 @@ FuckVim 是一个开箱即用的 Neovim 配置整合包，专为中文用户和 
 - 🖥️ **内置终端**：方便的命令行访问
 - 🎮 **键位冲突解决**：经过细致调整的快捷键布局
 
+## 前置依赖
+
+FuckVim 需要以下前置依赖才能正常工作：
+
+### 必需依赖
+
+- **Neovim** (0.9.0+) - 核心编辑器
+- **Git** - 插件管理和版本控制
+- **GCC/G++ 或 Clang** - C/C++编译器
+- **clangd** - C/C++语言服务器
+- **clang-format** - 代码格式化工具
+
+### 推荐依赖
+
+- **ripgrep** - 用于文本搜索
+- **fd-find** - 用于文件查找
+- **nodejs & npm** - 部分LSP服务器需要
+- **lazygit** - Git交互工具
+
+### 关于网络问题
+
+由于GitHub访问可能存在问题，强烈建议在安装前确保：
+
+- 网络连接稳定
+- 如果在中国大陆，建议**使用代理**以加速访问GitHub
+- 如果插件下载缓慢，可使用`export http_proxy=http://127.0.0.1:端口号`启用代理
+
 ## 安装指南
 
-### 系统要求
+### 自动安装（推荐）
 
-- Neovim 0.9.0 或更高版本
-- Git
-- C/C++ 编译器 (gcc/g++ 或 clang)
-- Node.js 和 npm（用于LSP）
-- [可选] lazygit（Git 界面）
-- [可选] ripgrep（搜索功能增强）
-
-### 一键安装
+安装脚本会自动安装所需依赖并配置FuckVim：
 
 ```bash
-# 备份现有配置
-mv ~/.config/nvim ~/.config/nvim.bak
-
 # 克隆仓库
-git clone https://github.com/DengY11/FuckVim.git ~/.config/nvim
+git clone https://github.com/DengY11/FuckVim.git
+cd FuckVim
 
-# 首次启动 Neovim，自动安装插件
-nvim
+# 赋予安装脚本执行权限
+chmod +x INSTALL.sh
+
+# 运行安装脚本
+./INSTALL.sh
+```
+
+> **注意**：安装过程中可能需要输入管理员密码以安装依赖项。
+> 
+> **建议**：在安装前确保系统已经开启了网络代理，以确保顺利从GitHub下载所需插件。
+
+### 手动安装
+
+如果您不想使用安装脚本，可以手动安装：
+
+1. 安装所需依赖（Neovim 0.9.0+, Git, GCC/Clang, clangd, clang-format等）
+2. 备份现有Neovim配置（如果有）：`mv ~/.config/nvim ~/.config/nvim.bak`
+3. 克隆FuckVim仓库：`git clone https://github.com/DengY11/FuckVim.git`
+4. 将配置文件复制到Neovim配置目录：
+   ```bash
+   mkdir -p ~/.config/nvim
+   cp -r FuckVim/init.lua ~/.config/nvim/
+   cp -r FuckVim/lua ~/.config/nvim/ # 如果存在lua目录
+   ```
+5. 启动Neovim，插件将被自动安装
+
+### 特定系统的依赖安装
+
+#### Ubuntu/Debian
+```bash
+# 安装基本依赖
+sudo apt update
+sudo apt install -y git curl unzip wget build-essential cmake
+
+# 安装Neovim (新版本)
+sudo add-apt-repository -y ppa:neovim-ppa/unstable
+sudo apt update
+sudo apt install -y neovim
+
+# 安装编译工具
+sudo apt install -y gcc g++ clang clangd clang-format
+
+# 安装其他工具
+sudo apt install -y ripgrep fd-find nodejs npm
+```
+
+#### Arch Linux
+```bash
+sudo pacman -S neovim git gcc clang clang-tools-extra ripgrep fd nodejs npm lazygit
+```
+
+#### Fedora
+```bash
+sudo dnf install -y neovim git gcc gcc-c++ clang clang-tools-extra ripgrep fd-find nodejs
 ```
 
 ## 使用方法
@@ -109,7 +179,7 @@ FuckVim 提供了直观的中文快捷键提示。按下 `空格` 键可以看�
 |--------|------|
 | `空格 + cf` | 格式化代码 |
 | `空格 + ca` | 代码操作 |
-| `空格 + rn` | 重命名变量/函数 |
+| `空格 + cr` | 重命名变量/函数 |
 | `gr` | 查找所有引用 |
 | `gd` | 跳转到定义 |
 | `K` | 显示文档 |
