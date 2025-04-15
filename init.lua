@@ -802,7 +802,7 @@ require("lazy").setup({
             enabled = false,
           },
           presets = {
-            operators = true,
+            operators = false,
             motions = true,
             text_objects = true,
             windows = true,
@@ -810,6 +810,19 @@ require("lazy").setup({
             z = true,
             g = true,
           },
+        },
+        operators = {
+          gc = false,
+          c = false,
+          d = false,
+          y = false,
+          ["g~"] = false,
+          ["gu"] = false,
+          ["gU"] = false,
+          [">"] = false,
+          ["<lt>"] = false,
+          ["zf"] = false,
+          ["!"] = false,
         },
         window = {
           border = "single",
@@ -874,7 +887,7 @@ require("lazy").setup({
           "│   <leader>a      - 代码结构                                        │",
           "│   <leader>ca     - 代码操作                                      │",
           "│   <leader>cf     - 格式化代码                                    │",
-          "│   <leader>cr     - 重命名变量/函数                               │",
+          "│   RR             - 快速双击R键重命名变量/函数                    │",
           "│   gr             - 查找所有引用                                  │",
           "│   gi             - 查找实现                                      │",
           "│   [d / ]d        - 跳到上一个/下一个诊断                         │",
@@ -995,13 +1008,8 @@ require("lazy").setup({
           name = "代码",
           a = { desc = "代码操作" },
           f = { desc = "格式化" },
-          r = { desc = "重命名变量/函数" },
         },
         ["<leader>/"] = { desc = "注释" },
-        ["<leader>d"] = { 
-          name = "诊断",
-          l = { desc = "列出诊断" },
-        },
         ["<leader>e"] = { desc = "文件浏览器" },
         ["<leader>f"] = { 
           name = "查找",
@@ -1376,6 +1384,42 @@ vim.keymap.set("n", "<leader>cf", function() _G.format_code() end, { desc = "LSP
 -- 设置全局快捷键以显示帮助
 vim.keymap.set('n', '<leader>h', function() show_keybindings_help() end, {desc = "显示键位帮助"})
 
+-- 添加空映射以覆盖默认行为，防止c键触发菜单
+vim.keymap.set('n', 'c', 'c', {noremap = true})
+
+-- 添加双击R键触发重命名功能
+local r_timer = nil
+local first_r_press_time = 0
+
+vim.keymap.set("n", "R", function()
+  local current_time = vim.loop.hrtime() / 1000000  -- 转换为毫秒
+  
+  if current_time - first_r_press_time < 300 then  -- 300毫秒内按下第二次R
+    -- 取消计时器
+    if r_timer then
+      vim.fn.timer_stop(r_timer)
+      r_timer = nil
+    end
+    
+    -- 执行重命名操作
+    vim.lsp.buf.rename()
+  else
+    -- 记录首次按下R的时间
+    first_r_press_time = current_time
+    
+    -- 设置计时器，如果超时则执行原始的R命令（替换模式）
+    if r_timer then
+      vim.fn.timer_stop(r_timer)
+    end
+    
+    r_timer = vim.fn.timer_start(300, function()
+      -- 超时，执行原始的R命令
+      vim.cmd("normal! R")
+      r_timer = nil
+    end)
+  end
+end, { noremap = true, silent = true, desc = "双击R重命名/单击R替换模式" })
+
 -- LSP格式化配置
 vim.lsp.handlers["textDocument/formatting"] = function(err, result, ctx)
   if err ~= nil or result == nil then
@@ -1430,9 +1474,6 @@ local function set_lsp_keymaps(bufnr)
     })
   end, {buffer = bufnr, desc = "LSP格式化"})
   
-  -- 重命名变量
-  vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, {buffer = bufnr, desc = "重命名变量"})
-  
   -- 引用查找
   vim.keymap.set("n", "gr", vim.lsp.buf.references, {buffer = bufnr, desc = "查找引用"})
   
@@ -1445,7 +1486,6 @@ local function set_lsp_keymaps(bufnr)
   -- 调整导航
   vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, {buffer = bufnr, desc = "上一个诊断"})
   vim.keymap.set("n", "]d", vim.diagnostic.goto_next, {buffer = bufnr, desc = "下一个诊断"})
-  vim.keymap.set("n", "<leader>dl", "<cmd>Telescope diagnostics<cr>", {buffer = bufnr, desc = "列出诊断"})
 end
 
 -- 设置公共的on_attach函数
